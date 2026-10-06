@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch ChatGPT Clone</title>
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2d2d2d;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #6b6b6b;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .status {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status.checking {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: #e5e5e5;
+            color: #8b8b8b;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            margin-bottom: 12px;
+            color: #2d2d2d;
+            font-size: 18px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: #6b6b6b;
+            line-height: 1.8;
+        }
+
+        .instructions code {
+            background: #e5e5e5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg width="64" height="64" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto 20px;">
+            <path d="M16 3C8.8203 3 3 8.8203 3 16C3 23.1797 8.8203 29 16 29C23.1797 29 29 23.1797 29 16C29 8.8203 23.1797 3 16 3ZM16 5C22.0989 5 27 9.90111 27 16C27 22.0989 22.0989 27 16 27C9.90111 27 5 22.0989 5 16C5 9.90111 9.90111 5 16 5Z" fill="#10a37f"/>
+            <path d="M16 8L12.5 10.5V15.5L16 18L19.5 15.5V10.5L16 8Z" fill="#10a37f"/>
+            <path d="M12.5 16.5L9 19V24L12.5 26.5L16 24V19L12.5 16.5Z" fill="#10a37f"/>
+            <path d="M19.5 16.5L16 19V24L19.5 26.5L23 24V19L19.5 16.5Z" fill="#10a37f"/>
+        </svg>
+        <h1>ChatGPT Clone</h1>
+        <p class="subtitle">AI-powered chat interface</p>
+
+        <div id="status" class="status checking">
+            <div class="spinner"></div>
+            Checking backend server...
+        </div>
+
+        <button id="launchBtn" class="btn" disabled>Launch ChatGPT</button>
+
+        <div class="instructions">
+            <h3>Setup Instructions</h3>
+            <ol>
+                <li>Make sure the backend is running: <code>python app.py</code></li>
+                <li>Wait for the status to show "Backend Connected"</li>
+                <li>Click "Launch ChatGPT" to start chatting</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const launchBtn = document.getElementById('launchBtn');
+
+        async function checkBackend() {
+            try {
+                const response = await fetch('http://localhost:5000/health');
+                
+                if (response.ok) {
+                    statusDiv.className = 'status success';
+                    statusDiv.innerHTML = '✓ Backend Connected - Ready to launch!';
+                    launchBtn.disabled = false;
+                    return true;
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '✗ Backend not running. Please start: python app.py';
+                launchBtn.disabled = true;
+                return false;
+            }
+        }
+
+        launchBtn.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Check backend status immediately and then every 2 seconds
+        checkBackend();
+        setInterval(checkBackend, 2000);
+    </script>
+</body>
+</html>
